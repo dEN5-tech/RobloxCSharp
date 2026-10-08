@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<meta>
+  <assembly name="RobloxAPI">
+    <namespace name="Roblox">
+      <class name="Instance" Ignore="true">
+        <property name="Name" isField="true" />
+        <property name="Parent" isField="true" />
+        <method name="New" Template="Instance.new({0})" />
+      </class>
+      <class name="Part" Ignore="true">
+        <property name="Transparency" isField="true" />
+      </class>
+      <class name="Game" Ignore="true">
+        <method name="GetService" Template="game:GetService({0})" />
+      </class>
+    </namespace>
+  </assembly>
+</meta>

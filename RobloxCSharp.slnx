@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="RobloxAPI/RobloxAPI.csproj" />
+  <Project Path="RobloxAPI/Generator/RobloxAPI.Generator.csproj" />
+  <Project Path="csharp/RobloxCSharpTemplate.csproj" />
+</Solution>

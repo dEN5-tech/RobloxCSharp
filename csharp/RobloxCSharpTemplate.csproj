@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RobloxAPI\RobloxAPI.csproj" />
+  </ItemGroup>
+
+  <!-- Automated Lua Builder Hook on Rebuild / Build -->
+  <Target Name="BuildLua" AfterTargets="Build">
+    <Message Importance="High" Text="=================================================" />
+    <Message Importance="High" Text="[Roblox C# Builder] Transpiling C# to Luau for Rojo..." />
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)build.ps1&quot; -OutDir &quot;$(ProjectDir)../src/Generated&quot;" ContinueOnError="true" />
+    <Message Importance="High" Text="[Roblox C# Builder] Lua scripts successfully mirrored to src/ for Rojo 7.7!" />
+    <Message Importance="High" Text="=================================================" />
+  </Target>
+</Project>

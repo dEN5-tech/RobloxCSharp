@@ -1,0 +1,45 @@
+# ==============================================================================
+# .gitignore for RobloxCSharp
+# Modern C# .NET 8 to Roblox Luau Template
+# ==============================================================================
+
+# Build results and intermediate files
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio & IDE files
+.vs/
+.idea/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+*.resharper
+*.dotSettings.user
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Temporary / Backup files
+*.tmp
+*.bak
+*.swp
+*~
+*.lock
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Roblox temporary files
+*.rbxl.lock
+*.rbxlx.lock

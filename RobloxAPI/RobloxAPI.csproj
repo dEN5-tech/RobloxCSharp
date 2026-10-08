@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Generator\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <!-- Auto-generate bindings on build if RobloxAPI.cs is missing -->
+  <Target Name="AutoGenerateBindings" BeforeTargets="BeforeCompile" Condition="!Exists('$(MSBuildProjectDirectory)\RobloxAPI.cs')">
+    <Message Importance="High" Text="[RobloxAPI] Generating RobloxAPI.cs from api-dump.json..." />
+    <Exec Command="dotnet run --project &quot;$(MSBuildProjectDirectory)\Generator\RobloxAPI.Generator.csproj&quot; -- &quot;$(MSBuildProjectDirectory)\api-dump.json&quot; &quot;$(MSBuildProjectDirectory)\RobloxAPI.cs&quot;" />
+  </Target>
+
+  <!-- Explicit generation target: dotnet build RobloxAPI/RobloxAPI.csproj -t:GenerateBindings -->
+  <Target Name="GenerateBindings">
+    <Message Importance="High" Text="[RobloxAPI] Regenerating RobloxAPI.cs from api-dump.json..." />
+    <Exec Command="dotnet run --project &quot;$(MSBuildProjectDirectory)\Generator\RobloxAPI.Generator.csproj&quot; -- &quot;$(MSBuildProjectDirectory)\api-dump.json&quot; &quot;$(MSBuildProjectDirectory)\RobloxAPI.cs&quot;" />
+  </Target>
+</Project>

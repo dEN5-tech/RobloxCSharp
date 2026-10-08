@@ -1,0 +1,30 @@
+{
+  "name": "roblox-csharp",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "CoreSystem": {
+        "$path": "src/CoreSystem"
+      },
+      "RobloxCSharp": {
+        "$path": "src/Generated"
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "ServerLoader": {
+        "$path": "src/ServerLoader.server.lua"
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "ClientLoader": {
+          "$path": "src/ClientLoader.client.lua"
+        }
+      }
+    }
+  }
+}
