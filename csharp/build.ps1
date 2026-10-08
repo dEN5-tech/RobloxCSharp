@@ -94,7 +94,9 @@ foreach ($lFile in $GenLuaFiles) {
 Write-Host "[SourceMap Generator] Building C# <-> Luau line maps..." -ForegroundColor Magenta
 
 $SourceMapEntries = @()
-$CsFiles = Get-ChildItem -Path "$PSScriptRoot" -Filter *.cs -Recurse | Where-Object { $_.FullName -notmatch "RobloxAPI" }
+$CsFiles = Get-ChildItem -Path "$PSScriptRoot" -Filter *.cs -Recurse | Where-Object {
+    $_.FullName -notmatch "RobloxAPI" -and $_.FullName -notmatch "[\\\\/]obj[\\\\/]" -and $_.FullName -notmatch "[\\\\/]bin[\\\\/]"
+}
 
 foreach ($csFile in $CsFiles) {
     $baseName = [System.IO.Path]::GetFileNameWithoutExtension($csFile.Name)
