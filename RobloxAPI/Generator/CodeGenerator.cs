@@ -290,14 +290,6 @@ public static class CodeGenerator
         /// @CSharpLua.Get = ""game:GetService('SoundService')""
         [Get(""game:GetService('SoundService')"")]
         public static extern SoundService SoundService { get; }
-
-        /// @CSharpLua.Get = ""game:GetService('RunService')""
-        [Get(""game:GetService('RunService')"")]
-        public static extern RunService RunService { get; }
-
-        /// @CSharpLua.Get = ""game:GetService('Debris')""
-        [Get(""game:GetService('Debris')"")]
-        public static extern Debris Debris { get; }
     }
 
     /// @CSharpLua.Ignore

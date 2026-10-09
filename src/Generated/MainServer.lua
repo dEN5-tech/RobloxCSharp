@@ -4,12 +4,10 @@ local System = _G.System or require(game:GetService("ReplicatedStorage"):WaitFor
 local ArrayObject = System.Array(System.Object)
 local Roblox
 local RobloxCSharpEntities
-local RobloxCSharpFramework
 local ListHero
 System.import(function (out)
   Roblox = out.Roblox
   RobloxCSharpEntities = RobloxCSharp.Entities
-  RobloxCSharpFramework = RobloxCSharp.Framework
   ListHero = System.List(RobloxCSharpEntities.Hero)
 end)
 System.namespace("RobloxCSharp.Server", function (namespace)
@@ -23,9 +21,6 @@ System.namespace("RobloxCSharp.Server", function (namespace)
       System.Console.WriteLine("=================================================")
       System.Console.WriteLine("[СЕРВЕР C#] Запуск игрового сервера с C# Героями!")
       System.Console.WriteLine("=================================================")
-
-      -- 0. Запускаем менеджер модификаторов и физических тиков
-      RobloxCSharpFramework.ModifierManager.Init()
 
       -- 1. Слушаем подключение новых игроков
       Roblox.Game.Players.PlayerAdded:Connect(function (playerInstance)

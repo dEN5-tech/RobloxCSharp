@@ -4,130 +4,79 @@ namespace RobloxCSharp.Framework
     using System.Collections.Generic;
     using Roblox;
 
-    // Менеджер модификаторов: обновляет состояние модификаторов на каждом тике Heartbeat
+    // Глобальный менеджер модификаторов: обновляет таймеры, тики и статы героев
     public static class ModifierManager
     {
-        private static readonly List<ModifierBase> activeModifiers = new List<ModifierBase>();
-        private static bool isInitialized = false;
+        private static List<BaseModifier> _allActiveModifiers = new List<BaseModifier>();
 
-        public static void Init()
+        public static void RegisterModifier(BaseHero target, BaseModifier modifier)
         {
-            if (isInitialized) return;
-            isInitialized = true;
-
-            // Подключаем физический цикл обновления через RunService.Heartbeat
-            Game.RunService.Heartbeat.Connect((step) =>
-            {
-                double dt = 1.0 / 60.0;
-                Update(dt);
-            });
-        }
-
-        public static void AddModifier(CharacterBase target, ModifierBase modifier)
-        {
-            Init();
             if (target == null || modifier == null) return;
 
-            if (!target.ActiveModifiers.Contains(modifier))
-            {
-                target.ActiveModifiers.Add(modifier);
-            }
+            target.Modifiers.Add(modifier);
+            _allActiveModifiers.Add(modifier);
 
-            if (!activeModifiers.Contains(modifier))
-            {
-                activeModifiers.Add(modifier);
-            }
-
-            RecalculateCharacterStats(target);
+            UpdateStats(target);
         }
 
-        public static void RemoveModifier(CharacterBase target, ModifierBase modifier)
+        public static void UnregisterModifier(BaseHero target, BaseModifier modifier)
         {
             if (target != null)
             {
-                target.ActiveModifiers.Remove(modifier);
-                RecalculateCharacterStats(target);
+                target.Modifiers.Remove(modifier);
+                UpdateStats(target);
             }
-            activeModifiers.Remove(modifier);
+            _allActiveModifiers.Remove(modifier);
         }
 
-        // Обновление всех активных модификаторов на сервере
-        public static void Update(double deltaTime)
+        // Обновление характеристик Roblox Humanoid на основе всех активных модификаторов
+        public static void UpdateStats(BaseHero hero)
         {
-            if (activeModifiers.Count == 0) return;
+            if (hero == null || hero.Humanoid == null || hero.IsDestroyed) return;
 
-            var toRemove = new List<ModifierBase>();
+            double speedAdd = 0;
+            double jumpAdd = 0;
 
-            for (int i = 0; i < activeModifiers.Count; i++)
+            foreach (var mod in hero.Modifiers)
             {
-                var mod = activeModifiers[i];
-                if (!mod.IsActive || mod.Target == null || mod.Target.Model == null || mod.Target.Model.Parent == null)
+                if (mod.IsActive)
                 {
-                    toRemove.Add(mod);
+                    speedAdd += mod.CheckWalkSpeedModifier();
+                    jumpAdd += mod.CheckJumpPowerModifier();
+                }
+            }
+
+            hero.Humanoid.WalkSpeed = hero.BaseWalkSpeed + speedAdd;
+            hero.Humanoid.JumpPower = hero.BaseJumpPower + jumpAdd;
+        }
+
+        // Вызывается на каждый игровой тик сервера для обновления длительности и интервалов
+        public static void UpdateTick()
+        {
+            double now = DateTime.UtcNow.Ticks / 10000000.0;
+
+            for (int i = _allActiveModifiers.Count - 1; i >= 0; i--)
+            {
+                var mod = _allActiveModifiers[i];
+                if (!mod.IsActive || mod.Target.IsDestroyed)
+                {
+                    mod.Destroy();
                     continue;
                 }
 
-                mod.ElapsedTime += deltaTime;
-
-                // 1. Обновление физических контроллеров движения (MotionBase)
-                if (mod is MotionBase motion)
+                // 1. Проверка истечения времени действия
+                if (mod.Duration >= 0 && (now - mod.StartTime) >= mod.Duration)
                 {
-                    motion.UpdateMotion(deltaTime);
+                    mod.Destroy();
+                    continue;
                 }
 
-                // 2. Периодический тик (OnIntervalThink)
-                if (mod.ThinkInterval > 0)
+                // 2. Проверка тика интервала (OnIntervalThink)
+                if (mod.Interval > 0 && (now - mod.LastThinkTime) >= mod.Interval)
                 {
-                    if (mod.ElapsedTime - mod.LastThinkTime >= mod.ThinkInterval)
-                    {
-                        mod.LastThinkTime = mod.ElapsedTime;
-                        mod.OnIntervalThink();
-                    }
+                    mod.LastThinkTime = now;
+                    mod.OnIntervalThink();
                 }
-
-                // 3. Проверка истечения времени действия (Duration)
-                if (mod.Duration > 0 && mod.ElapsedTime >= mod.Duration)
-                {
-                    toRemove.Add(mod);
-                }
-            }
-
-            // Очищаем завершившиеся модификаторы
-            for (int i = 0; i < toRemove.Count; i++)
-            {
-                toRemove[i].Destroy();
-            }
-        }
-
-        // Пересчет характеристик персонажа (скорость бега, сила прыжка и т.д.)
-        public static void RecalculateCharacterStats(CharacterBase character)
-        {
-            if (character == null || character.Humanoid == null) return;
-
-            double speedBonus = 0;
-            double jumpBonus = 0;
-            bool isStunned = false;
-
-            for (int i = 0; i < character.ActiveModifiers.Count; i++)
-            {
-                var mod = character.ActiveModifiers[i];
-                if (mod.IsActive)
-                {
-                    speedBonus += mod.GetWalkSpeedBonus();
-                    jumpBonus += mod.GetJumpPowerBonus();
-                    if (mod.IsStunned()) isStunned = true;
-                }
-            }
-
-            if (isStunned)
-            {
-                character.Humanoid.WalkSpeed = 0;
-                character.Humanoid.JumpPower = 0;
-            }
-            else
-            {
-                character.Humanoid.WalkSpeed = character.BaseWalkSpeed + speedBonus;
-                character.Humanoid.JumpPower = character.BaseJumpPower + jumpBonus;
             }
         }
     }

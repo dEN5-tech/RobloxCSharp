@@ -2,50 +2,103 @@ namespace RobloxCSharp.Entities
 {
     using System;
     using Roblox;
-    using RobloxCSharp.Framework;
 
-    // Класс Героя-Прыгуна (SuperJumperHero)
+    // Класс Героя-Прыгуна: расширяет базового Героя и добавляет способность "Супер Прыжок Вверх"
     public class SuperJumperHero : Hero
     {
-        public SuperJumpAction JumpAction { get; private set; }
+        // Сила прыжка
+        public double SuperJumpForce = 120;
 
+        // Конструктор
         public SuperJumperHero(Player player, Model character, Humanoid humanoid)
             : base(player, character, humanoid)
         {
-            this.JumpAction = new SuperJumpAction(this);
         }
 
+        // Переопределяем инициализацию героя
         public override void Initialize()
         {
             base.Initialize();
 
-            // Обновляем бейдж над головой
+            // 1. Увеличиваем стандартную высоту прыжка персонажа
+            if (this.Humanoid != null)
+            {
+                this.Humanoid.UseJumpPower = true;
+                this.Humanoid.JumpPower = this.SuperJumpForce;
+            }
+
+            // 2. Добавляем золотистое свечение вокруг героя
+            CreateJumpAura();
+
+            // 3. Обновляем надпись над головой
             UpdateOverheadText();
 
-            // Накладываем пассивный модификатор ускорения на 10 секунд
-            ModifierBase.Apply<SpeedBoostModifier>(this, this, 10.0);
+            Console.WriteLine("[Супер Прыгун] Герой " + this.Name + " готов к супер прыжкам!");
 
-            // Выполняем прыжок при спавне
-            PerformMainAction();
+            // 4. Сразу выполняем демонстрационный супер прыжок вверх при появлении
+            SuperJump();
         }
 
-        public override void PerformMainAction()
+        // Логика способности "Супер Прыжок Вверх"
+        public void SuperJump()
         {
-            if (this.JumpAction != null)
-            {
-                this.JumpAction.Execute(this, null);
-            }
+            var rootPart = (BasePart)this.Character.FindFirstChild("HumanoidRootPart");
+            if (rootPart == null || this.Humanoid == null) return;
+
+            Console.WriteLine("🚀 [Способность] Герой " + this.Name + " выполняет СУПЕР ПРЫЖОК ВВЕРХ!");
+
+            // 1. Даем физический импульс вверх персонажу через скорость
+            rootPart.AssemblyLinearVelocity = Vector3.New(0, this.SuperJumpForce, 0);
+
+            // 2. Активируем состояние прыжка у Humanoid
+            this.Humanoid.Jump = true;
+
+            // 3. Создаем яркую световую вспышку при прыжке
+            CreateJumpFlashEffect(rootPart);
         }
 
+        // Переопределяем метод базового класса
+        public override void UseAbility()
+        {
+            SuperJump();
+        }
+
+        // Создание эффекта золотистой ауры вокруг персонажа
+        private void CreateJumpAura()
+        {
+            var oldHighlight = this.Character.FindFirstChild("JumpAura");
+            if (oldHighlight != null) oldHighlight.Destroy();
+
+            var aura = Instance.New<Highlight>("Highlight");
+            aura.Name = "JumpAura";
+            aura.FillColor = Color3.FromRGB(255, 215, 0); // Золотой цвет
+            aura.OutlineColor = Color3.FromRGB(255, 255, 255);
+            aura.FillTransparency = 0.5;
+            aura.OutlineTransparency = 0.1;
+            aura.Parent = this.Character;
+        }
+
+        // Создание световой вспышки под ногами при супер прыжке
+        private void CreateJumpFlashEffect(BasePart rootPart)
+        {
+            var light = Instance.New<PointLight>("PointLight");
+            light.Name = "JumpFlash";
+            light.Color = Color3.FromRGB(255, 230, 100);
+            light.Brightness = 5;
+            light.Range = 20;
+            light.Parent = rootPart;
+        }
+
+        // Обновление бейджа над головой с новым именем класса
         private void UpdateOverheadText()
         {
-            var head = (BasePart)this.Model.FindFirstChild("Head");
+            var head = (BasePart)this.Character.FindFirstChild("Head");
             if (head == null) return;
 
-            var billboard = head.FindFirstChild("OverheadDisplay");
+            var billboard = head.FindFirstChild("HeroOverhead");
             if (billboard != null)
             {
-                var label = (TextLabel)billboard.FindFirstChild("DisplayLabel");
+                var label = (TextLabel)billboard.FindFirstChild("TextLabel");
                 if (label != null)
                 {
                     label.Text = this.Name + " [⚡ Супер Прыгун]";

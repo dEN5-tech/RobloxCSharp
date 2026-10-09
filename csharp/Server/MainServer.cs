@@ -4,7 +4,6 @@ namespace RobloxCSharp.Server
     using System.Collections.Generic;
     using Roblox;
     using RobloxCSharp.Entities;
-    using RobloxCSharp.Framework;
 
     // Главный сервер: регистрирует игроков и создает для них героев
     public class MainServer
@@ -17,9 +16,6 @@ namespace RobloxCSharp.Server
             Console.WriteLine("=================================================");
             Console.WriteLine("[СЕРВЕР C#] Запуск игрового сервера с C# Героями!");
             Console.WriteLine("=================================================");
-
-            // 0. Запускаем менеджер модификаторов и физических тиков
-            ModifierManager.Init();
 
             // 1. Слушаем подключение новых игроков
             Game.Players.PlayerAdded.Connect((playerInstance) =>
